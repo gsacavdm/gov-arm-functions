@@ -78,8 +78,12 @@
               "value": "~1"
             },
             {
-              "name": "Project",
-              "value": "src"
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;EndpointSuffix=', replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob, concat('https://', variables('storageAccountName'), '.blob.'),''),'/',''),';AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2016-01-01').keys[0].value)]"
+            },
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[concat('DefaultEndpointsProtocol=https;EndpointSuffix=', replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob, concat('https://', variables('storageAccountName'), '.blob.'),''),'/',''),';AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2016-01-01').keys[0].value)]"
             }
           ]
         }
@@ -99,21 +103,6 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites/', variables('siteName'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Web/sites/config",
-      "name": "[concat(variables('siteName'), '/appsettings')]",
-      "apiVersion": "2015-08-01",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountName'),'2015-05-01-preview').key1)]",
-        "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountName'),'2015-05-01-preview').key1)]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('siteName'))]",
-        "[resourceId('Microsoft.Web/Sites/sourcecontrols', variables('siteName'), 'web')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     }
   ]
