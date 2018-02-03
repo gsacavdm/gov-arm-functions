@@ -1,0 +1,120 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namingPrefix": {
+      "type": "string",
+      "defaultValue": "contoso"
+    },
+    "appServicePlanSku": {
+      "type": "string",
+      "allowedValues": [
+        "F1",
+        "B1"
+      ],
+      "defaultValue": "B1"
+    },
+    "sourceCodeRepositoryURL": {
+      "type": "string",
+      "defaultValue": "https://github.com/gsacavdm/gov-arm-functions"
+    },
+    "sourceCodeBranch": {
+      "type": "string",
+      "defaultValue": "master"
+    },
+    "sourceCodeManualIntegration": {
+      "type": "bool",
+      "defaultValue": false
+    }
+  },
+  "variables": {
+    "storageAccountName": "[concat(parameters('namingPrefix'),'sa')]",
+    "serverFarmName": "[concat(parameters('namingPrefix'),'-farm')]",
+    "siteName": "[concat(parameters('namingPrefix'),'-site')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "properties": {},
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "sku": {
+        "name": "[parameters('appServicePlanSku')]"
+      },
+      "kind": "app",
+      "name": "[variables('serverFarmName')]",
+      "apiVersion": "2015-08-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "name": "[variables('serverFarmName')]",
+        "numberOfWorkers": 1
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "kind": "functionapp",
+      "name": "[variables('siteName')]",
+      "apiVersion": "2015-08-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]",
+        "siteConfig": {
+          "alwaysOn": true,
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~1"
+            },
+            {
+              "name": "Project",
+              "value": "src"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]"
+      ]
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[concat(variables('siteName'), '/web')]",
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "properties": {
+        "RepoUrl": "[parameters('sourceCodeRepositoryURL')]",
+        "branch": "[parameters('sourceCodeBranch')]",
+        "IsManualIntegration": "[parameters('sourceCodeManualIntegration')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/', variables('siteName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "name": "[concat(variables('serverFarmName'), '/appsettings')]",
+      "apiVersion": "2015-08-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountName'),'2015-05-01-preview').key1)]",
+        "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountName'),'2015-05-01-preview').key1)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('siteName'))]",
+        "[resourceId('Microsoft.Web/Sites/sourcecontrols', variables('siteName'), 'web')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    }
+  ]
+}
