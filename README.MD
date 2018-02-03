@@ -1,6 +1,8 @@
 # Azure Functions Resource Manager Template
 This template sets up an Azure Function using the code in this same repo. It pull everything in this repo (including README.MD and template.json) but Azure Functions, given the appSettings in the template, will only look at root level folders that contain a `function.json` file.
 
+> **Note:** You can export all the code in an existing Azure Function setup using the **Download app content** button. This template was tested using **Site Content** and leaving **unchecked Include app settings in the download**.
+
 ## Naming Convention
 This template only has 1 parameter: `namingPrefix`. This parameter is used to autogenerate the names of all resources. For example, for `namingPrefix` of `contoso_`, the site will be named `contoso-site` and the storage account `contososa`.
 
