@@ -24,7 +24,7 @@
     },
     "sourceCodeManualIntegration": {
       "type": "bool",
-      "defaultValue": false
+      "defaultValue": true
     }
   },
   "variables": {
@@ -103,7 +103,7 @@
     },
     {
       "type": "Microsoft.Web/sites/config",
-      "name": "[concat(variables('serverFarmName'), '/appsettings')]",
+      "name": "[concat(variables('siteName'), '/appsettings')]",
       "apiVersion": "2015-08-01",
       "location": "[resourceGroup().location]",
       "properties": {
