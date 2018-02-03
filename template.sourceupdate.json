@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namingPrefix": {
+      "type": "string",
+      "defaultValue": "contoso"
+    }
+  },
+  "variables": {
+    "siteName": "[concat(parameters('namingPrefix'),'-site')]"
+   },
+  "resources": [
+    {
+      // THIS DOESN'T WORK
+      "apiVersion": "2015-08-01",
+      "name": "[concat(variables('siteName'), '/sync')]",
+      "type": "Microsoft.Web/sites/sync",
+      "properties": { }
+    }
+  ]
+}
